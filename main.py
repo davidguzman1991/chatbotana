@@ -2,7 +2,7 @@ import json
 import os
 
 import httpx
-from fastapi import FastAPI, Header, HTTPException, Request
+from fastapi import FastAPI, Header, Request, Query, HTTPException
 from fastapi.responses import JSONResponse, PlainTextResponse
 
 app = FastAPI()
@@ -64,52 +64,83 @@ async def telegram_webhook(
 
 WA_TOKEN = os.getenv("WHATSAPP_TOKEN", "")
 WA_PHONE_ID = os.getenv("WHATSAPP_PHONE_NUMBER_ID", "")
-WA_VERIFY = os.getenv("WHATSAPP_VERIFY_TOKEN", "verify_me")
+WA_VERIFY = os.getenv("WHATSAPP_VERIFY_TOKEN", "")
+
+WA_MSG_URL = "https://graph.facebook.com/v19.0/{phone_id}/messages"
 
 
-async def wa_send(to: str, text: str):
+async def wa_send_text(to_number: str, text: str):
     if not (WA_TOKEN and WA_PHONE_ID):
-        print("WARN: WA_TOKEN/WA_PHONE_ID vacios")
+        print("WARN WA: Falta WHATSAPP_TOKEN o WHATSAPP_PHONE_NUMBER_ID.")
         return
-    url = f"https://graph.facebook.com/v20.0/{WA_PHONE_ID}/messages"
-    headers = {"Authorization": f"Bearer {WA_TOKEN}"}
+    url = WA_MSG_URL.format(phone_id=WA_PHONE_ID)
+    headers = {
+        "Authorization": f"Bearer {WA_TOKEN}",
+        "Content-Type": "application/json",
+    }
     payload = {
         "messaging_product": "whatsapp",
-        "to": to,
+        "to": to_number,
         "type": "text",
         "text": {"body": text},
     }
-    try:
-        async with httpx.AsyncClient(timeout=10) as client:
-            resp = await client.post(url, headers=headers, json=payload)
-            try:
-                resp.raise_for_status()
-            except httpx.HTTPError as exc:
-                print("WA send error:", exc, "resp:", resp.text)
-    except Exception as exc:
-        print("WA send unexpected error:", exc)
+    async with httpx.AsyncClient(timeout=20) as client:
+        resp = await client.post(url, headers=headers, json=payload)
+        if resp.status_code >= 400:
+            print("WA send error:", resp.status_code, resp.text)
 
 
 @app.get("/webhook/whatsapp")
 async def wa_verify(
-    mode: str | None = None,
-    challenge: str | None = None,
-    token: str | None = None,
+    mode: str | None = Query(None, alias="hub.mode"),
+    challenge: str | None = Query(None, alias="hub.challenge"),
+    token: str | None = Query(None, alias="hub.verify_token"),
+    mode2: str | None = Query(None, alias="mode"),
+    challenge2: str | None = Query(None, alias="challenge"),
+    token2: str | None = Query(None, alias="token"),
 ):
-    if mode == "subscribe" and token == WA_VERIFY:
-        return PlainTextResponse(challenge or "")
+    m = (mode or mode2 or "").strip()
+    t = (token or token2 or "").strip()
+    c = (challenge or challenge2 or "")
+    if m == "subscribe" and t == (WA_VERIFY or "").strip():
+        return int(c) if c.isdigit() else (c or "")
     raise HTTPException(status_code=403, detail="Verification failed")
 
 
 @app.post("/webhook/whatsapp")
 async def wa_webhook(request: Request):
     body = await request.json()
-    print("WA update:", json.dumps(body, ensure_ascii=False))
     try:
-        message = body["entry"][0]["changes"][0]["value"]["messages"][0]
-        from_number = message["from"]
-        text = message.get("text", {}).get("body", "")
-        await wa_send(from_number, f"AnaBot recibio: {text}")
-    except Exception as exc:
-        print("WA parse/send error:", exc)
-    return JSONResponse({"ok": True})
+        entry = (body.get("entry") or [{}])[0]
+        changes = (entry.get("changes") or [{}])[0]
+        value = changes.get("value") or {}
+        messages = value.get("messages") or []
+        statuses = value.get("statuses") or []
+
+        if messages:
+            for m in messages:
+                from_ = m.get("from")
+                msg_type = m.get("type")
+                text = ""
+                if msg_type == "text":
+                    text = m["text"].get("body", "")
+                elif msg_type == "reaction":
+                    text = f"Reaccion: {m['reaction'].get('emoji','')}"
+                else:
+                    text = f"Tipo {msg_type} recibido."
+                if from_:
+                    await wa_send_text(from_, f"Ana 🤖 te leyo: {text}")
+
+        if statuses:
+            print("WA statuses:", json.dumps(statuses))
+
+    except Exception as e:
+        print("WA parse/send error:", repr(e), "BODY:", json.dumps(body))
+    return {"ok": True}
+
+
+@app.get("/__debug/wa_token")
+async def debug_wa():
+    masked = "*" * max(0, len(WA_VERIFY or "") - 4) + (WA_VERIFY[-4:] if WA_VERIFY else "")
+    return {"len": len(WA_VERIFY or ""), "repr": repr(WA_VERIFY or ""), "masked_end": masked}
+# TODO: remove __debug/wa_token after verifying WhatsApp configuration.
