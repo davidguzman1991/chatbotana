@@ -25,7 +25,7 @@
       }
     },
     "messages": {
-      "invalid_option": "No reconoci la opcion, intenta nuevamente.",
+      "invalid_option": "No entendí tu mensaje, te muestro el menú principal:",
       "invalid_field": "El dato no tiene el formato esperado, intentemos otra vez."
     },
     "commands": {
@@ -40,29 +40,70 @@
       "type": "choice",
       "text": "!Buen {saludo}! Soy Ana, asistente del Dr. David Guzman.\n\n?En que te ayudo hoy? Escribe el numero de la opcion (ej: 2).\n\n1) Agendar cita\n2) Mas informacion de servicios medicos\n3) Precios\n4) Ubicaciones\n5) Reagendar o cancelar\n6) Portal del Paciente\n7) Contactar al Dr.",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "2", "label": "Mas informacion", "next": "INFO_SERVICIOS"},
-        {"key": "3", "label": "Precios", "next": "PRECIOS"},
-        {"key": "4", "label": "Ubicaciones", "next": "UBICACIONES"},
-        {"key": "5", "label": "Reagendar o cancelar", "next": "REA_DNI"},
-        {"key": "6", "label": "Portal del Paciente", "next": "PORTAL"},
-        {"key": "7", "label": "Contactar al Dr.", "next": "CONTACTO"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "2",
+          "label": "Mas informacion",
+          "next": "INFO_SERVICIOS"
+        },
+        {
+          "key": "3",
+          "label": "Precios",
+          "next": "PRECIOS"
+        },
+        {
+          "key": "4",
+          "label": "Ubicaciones",
+          "next": "UBICACIONES"
+        },
+        {
+          "key": "5",
+          "label": "Reagendar o cancelar",
+          "next": "REA_DNI"
+        },
+        {
+          "key": "6",
+          "label": "Portal del Paciente",
+          "next": "PORTAL"
+        },
+        {
+          "key": "7",
+          "label": "Contactar al Dr.",
+          "next": "CONTACTO"
+        }
       ],
       "on_enter_hooks": [
         {
           "hook": "red_flag_detector",
-          "args": ["{last_text}"],
+          "args": [
+            "{last_text}"
+          ],
           "if_true_next": "RED_FLAG"
         }
-      ]
+      ],
+      "fallback": {
+        "next": "HOME"
+      }
     },
     {
       "id": "RED_FLAG",
       "type": "choice",
       "text": "Gracias por compartir tu mensaje. Recuerda que si presentas dolor en el pecho, falta de aire u otra senal de alarma es importante contactar a emergencias (911) de inmediato.\n\n?Quieres que agendemos una cita prioritaria con el Dr. Guzman?",
       "options": [
-        {"key": "1", "label": "Si, agendar cita prioritaria", "next": "AGENDA_DNI"},
-        {"key": "9", "label": "Volver al inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Si, agendar cita prioritaria",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "9",
+          "label": "Volver al inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -74,7 +115,9 @@
       "hooks": [
         {
           "hook": "patient.lookup",
-          "args": ["{agenda.dni}"],
+          "args": [
+            "{agenda.dni}"
+          ],
           "if_true_next": "AGENDA_EXISTE_RESUMEN",
           "if_false_next": "AGENDA_NEW_NAME"
         }
@@ -85,9 +128,21 @@
       "type": "choice",
       "text": "Tengo registrado: {agenda.patient.summary}.\n\n?Deseas usar estos datos para tu cita?",
       "options": [
-        {"key": "1", "label": "Si, continuar con estos datos", "next": "AGENDA_SEDE"},
-        {"key": "2", "label": "Actualizar mis datos", "next": "AGENDA_NEW_NAME"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Si, continuar con estos datos",
+          "next": "AGENDA_SEDE"
+        },
+        {
+          "key": "2",
+          "label": "Actualizar mis datos",
+          "next": "AGENDA_NEW_NAME"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -129,7 +184,15 @@
       "hooks": [
         {
           "hook": "patient.create_or_update",
-          "args": ["{agenda.dni}", "{agenda.full_name}", "{agenda.birth_date}", "{agenda.phone}", "{agenda.email}", "{meta.channel}", "{meta.user_id}"]
+          "args": [
+            "{agenda.dni}",
+            "{agenda.full_name}",
+            "{agenda.birth_date}",
+            "{agenda.phone}",
+            "{agenda.email}",
+            "{meta.channel}",
+            "{meta.user_id}"
+          ]
         }
       ],
       "next": "AGENDA_SEDE"
@@ -142,16 +205,26 @@
         {
           "key": "1",
           "label": "Guayaquil (agenda inmediata)",
-          "save": {"agenda.site": "GYE", "agenda.site_label": "Guayaquil"},
+          "save": {
+            "agenda.site": "GYE",
+            "agenda.site_label": "Guayaquil"
+          },
           "next": "AGENDA_GYE_FECHA_MENU"
         },
         {
           "key": "2",
           "label": "Milagro (confirmacion diferida)",
-          "save": {"agenda.site": "MIL", "agenda.site_label": "Milagro"},
+          "save": {
+            "agenda.site": "MIL",
+            "agenda.site_label": "Milagro"
+          },
           "next": "AGENDA_MIL_FECHA"
         },
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -162,13 +235,23 @@
         {
           "key": "1",
           "label": "Hoy",
-          "hooks": [{"hook": "dates_today", "save_as": "agenda.date"}],
+          "hooks": [
+            {
+              "hook": "dates_today",
+              "save_as": "agenda.date"
+            }
+          ],
           "next": "AGENDA_GYE_SLOTS"
         },
         {
           "key": "2",
           "label": "Manana",
-          "hooks": [{"hook": "dates_tomorrow", "save_as": "agenda.date"}],
+          "hooks": [
+            {
+              "hook": "dates_tomorrow",
+              "save_as": "agenda.date"
+            }
+          ],
           "next": "AGENDA_GYE_SLOTS"
         },
         {
@@ -176,7 +259,11 @@
           "label": "Otra fecha (DD-MM-AAAA)",
           "next": "AGENDA_GYE_FECHA_INPUT"
         },
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -194,11 +281,16 @@
       "hooks": [
         {
           "hook": "appointments.list_slots",
-          "args": ["{agenda.site}", "{agenda.date}"]
+          "args": [
+            "{agenda.site}",
+            "{agenda.date}"
+          ]
         }
       ],
       "dynamic_options_from": "agenda.slots",
-      "on_select": {"save_as": "agenda.selected_slot"},
+      "on_select": {
+        "save_as": "agenda.selected_slot"
+      },
       "on_select_next": "AGENDA_GYE_RESUMEN",
       "fallback": {
         "message": "Por ahora no tengo horarios disponibles para esa fecha. Puedes elegir otra fecha o escribir 9 para volver al inicio."
@@ -209,12 +301,29 @@
       "type": "choice",
       "text": "Resumen de tu cita:\n\nFecha y hora: {agenda.display}\nSede: {agenda.site_label}\nPaciente: {agenda.patient.summary}\n\nConfirmo que mis datos son correctos y autorizo su uso para agendar y recordarme mi atencion medica por WhatsApp/correo. Este canal no reemplaza una emergencia (911).",
       "on_enter_hooks": [
-        {"hook": "agenda.store_slot", "args": ["{agenda.selected_slot}"]}
+        {
+          "hook": "agenda.store_slot",
+          "args": [
+            "{agenda.selected_slot}"
+          ]
+        }
       ],
       "options": [
-        {"key": "1", "label": "Confirmar", "next": "AGENDA_REMINDER"},
-        {"key": "2", "label": "Cambiar hora", "next": "AGENDA_GYE_SLOTS"},
-        {"key": "9", "label": "Cancelar", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Confirmar",
+          "next": "AGENDA_REMINDER"
+        },
+        {
+          "key": "2",
+          "label": "Cambiar hora",
+          "next": "AGENDA_GYE_SLOTS"
+        },
+        {
+          "key": "9",
+          "label": "Cancelar",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -225,22 +334,42 @@
         {
           "key": "1",
           "label": "WhatsApp (recomendado)",
-          "save": {"agenda.reminder": "wa"},
+          "save": {
+            "agenda.reminder": "wa"
+          },
           "hooks": [
-            {"hook": "appointments.book_confirmed", "args": ["wa"], "save_as": "agenda.appointment_id"}
+            {
+              "hook": "appointments.book_confirmed",
+              "args": [
+                "wa"
+              ],
+              "save_as": "agenda.appointment_id"
+            }
           ],
           "next": "AGENDA_CONFIRMACION"
         },
         {
           "key": "2",
           "label": "Correo electronico",
-          "save": {"agenda.reminder": "email"},
+          "save": {
+            "agenda.reminder": "email"
+          },
           "hooks": [
-            {"hook": "appointments.book_confirmed", "args": ["email"], "save_as": "agenda.appointment_id"}
+            {
+              "hook": "appointments.book_confirmed",
+              "args": [
+                "email"
+              ],
+              "save_as": "agenda.appointment_id"
+            }
           ],
           "next": "AGENDA_CONFIRMACION"
         },
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -257,13 +386,23 @@
         {
           "key": "1",
           "label": "Hoy",
-          "hooks": [{"hook": "dates_today", "save_as": "agenda.mil_date"}],
+          "hooks": [
+            {
+              "hook": "dates_today",
+              "save_as": "agenda.mil_date"
+            }
+          ],
           "next": "AGENDA_MIL_TURNO"
         },
         {
           "key": "2",
           "label": "Manana",
-          "hooks": [{"hook": "dates_tomorrow", "save_as": "agenda.mil_date"}],
+          "hooks": [
+            {
+              "hook": "dates_tomorrow",
+              "save_as": "agenda.mil_date"
+            }
+          ],
           "next": "AGENDA_MIL_TURNO"
         },
         {
@@ -271,7 +410,11 @@
           "label": "Otra fecha (DD-MM-AAAA)",
           "next": "AGENDA_MIL_FECHA_INPUT"
         },
-        {"key": "9", "label": "Volver", "next": "AGENDA_SEDE"}
+        {
+          "key": "9",
+          "label": "Volver",
+          "next": "AGENDA_SEDE"
+        }
       ]
     },
     {
@@ -290,16 +433,24 @@
         {
           "key": "1",
           "label": "Manana (09:00-12:00)",
-          "save": {"agenda.mil_shift": "manana"},
+          "save": {
+            "agenda.mil_shift": "manana"
+          },
           "next": "AGENDA_MIL_REGISTRO"
         },
         {
           "key": "2",
           "label": "Tarde (15:00-18:00)",
-          "save": {"agenda.mil_shift": "tarde"},
+          "save": {
+            "agenda.mil_shift": "tarde"
+          },
           "next": "AGENDA_MIL_REGISTRO"
         },
-        {"key": "9", "label": "Volver", "next": "AGENDA_MIL_FECHA"}
+        {
+          "key": "9",
+          "label": "Volver",
+          "next": "AGENDA_MIL_FECHA"
+        }
       ]
     },
     {
@@ -308,7 +459,10 @@
       "hooks": [
         {
           "hook": "appointments.register_milagro",
-          "args": ["{agenda.mil_date}", "{agenda.mil_shift}"],
+          "args": [
+            "{agenda.mil_date}",
+            "{agenda.mil_shift}"
+          ],
           "save_as": "agenda.appointment_id"
         }
       ],
@@ -326,10 +480,26 @@
       "type": "choice",
       "text": "Selecciona el servicio sobre el que deseas leer:",
       "options": [
-        {"key": "1", "label": "Consulta integral (60 min, $45)", "next": "INFO_CONSULTA"},
-        {"key": "2", "label": "Neuropatia diabetica", "next": "INFO_NEUROPATIA"},
-        {"key": "3", "label": "Pie diabetico y curaciones", "next": "INFO_PIE"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Consulta integral (60 min, $45)",
+          "next": "INFO_CONSULTA"
+        },
+        {
+          "key": "2",
+          "label": "Neuropatia diabetica",
+          "next": "INFO_NEUROPATIA"
+        },
+        {
+          "key": "3",
+          "label": "Pie diabetico y curaciones",
+          "next": "INFO_PIE"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -337,9 +507,21 @@
       "type": "choice",
       "text": "La consulta dura 60 minutos y tiene un valor de 45 dolares. Revisamos tu historia, aclaramos dudas y definimos un plan para controlar tu condicion y mejorar tu calidad de vida. Incluye ECG, asesoria nutricional con plan, educacion en diabetes (para ti y tu familia), examen de neuropatia diabetica y valoracion del riesgo cardiovascular/renal.",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "2", "label": "Ver ubicaciones", "next": "UBICACIONES"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "2",
+          "label": "Ver ubicaciones",
+          "next": "UBICACIONES"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -347,9 +529,21 @@
       "type": "choice",
       "text": "Si presentas hormigueo, ardor, entumecimiento o dolor en pies/manos, evaluamos el grado de neuropatia y ajustamos tu tratamiento. Te orientamos en medicacion, habitos, cuidado de pies y senales de alarma, con un plan claro para tu dia a dia.",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "2", "label": "Ver ubicaciones", "next": "UBICACIONES"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "2",
+          "label": "Ver ubicaciones",
+          "next": "UBICACIONES"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -357,9 +551,21 @@
       "type": "choice",
       "text": "Las curaciones de pie diabetico estan incluidas dentro de la consulta. Si se requiere material avanzado o procedimientos adicionales, te lo explicamos y solicitamos autorizacion antes de continuar.",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "2", "label": "Ver ubicaciones", "next": "UBICACIONES"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "2",
+          "label": "Ver ubicaciones",
+          "next": "UBICACIONES"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -367,9 +573,21 @@
       "type": "choice",
       "text": "Consulta $45 (incluye ECG, plan nutricional, educacion en diabetes, examen de neuropatia y valoracion de riesgo, ademas de curaciones de pie diabetico). Material o procedimientos avanzados: segun necesidad y con autorizacion previa.",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "2", "label": "Ver ubicaciones", "next": "UBICACIONES"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "2",
+          "label": "Ver ubicaciones",
+          "next": "UBICACIONES"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -377,8 +595,16 @@
       "type": "choice",
       "text": "Guayaquil: Hospital de Especialidades (Torre Sur), consultorio 204 (antigua Clinica Kennedy Alborada).\nMapa: https://maps.app.goo.gl/7J8v9V9RJHfxADfz7\n\nMilagro: Clinica Santa Elena, Av. Cristobal Colon y Calle Gral. PJ Montero.\nMapa: https://maps.app.goo.gl/7hh97D7JDcznqRSK9",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -390,7 +616,9 @@
       "hooks": [
         {
           "hook": "appointments.upcoming_by_dni",
-          "args": ["{agenda.dni}"],
+          "args": [
+            "{agenda.dni}"
+          ],
           "if_true_next": "REA_RESUMEN",
           "if_false_next": "REA_SIN_CITA"
         }
@@ -401,8 +629,16 @@
       "type": "choice",
       "text": "No encontre citas activas con ese documento.\n\n?Deseas agendar una nueva cita?",
       "options": [
-        {"key": "1", "label": "Si, agendar", "next": "AGENDA_SEDE"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Si, agendar",
+          "next": "AGENDA_SEDE"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -410,9 +646,21 @@
       "type": "choice",
       "text": "Tu proxima cita: {appointments.target.local_label} en {appointments.target.site_label}.\nEstado: {appointments.target.status}.\n\n?Que deseas hacer?",
       "options": [
-        {"key": "1", "label": "Reagendar", "next": "REA_RES_FECHA_MENU"},
-        {"key": "2", "label": "Cancelar", "next": "REA_CANCEL_MOTIVO"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Reagendar",
+          "next": "REA_RES_FECHA_MENU"
+        },
+        {
+          "key": "2",
+          "label": "Cancelar",
+          "next": "REA_CANCEL_MOTIVO"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -423,13 +671,23 @@
         {
           "key": "1",
           "label": "Hoy",
-          "hooks": [{"hook": "dates_today", "save_as": "agenda.date"}],
+          "hooks": [
+            {
+              "hook": "dates_today",
+              "save_as": "agenda.date"
+            }
+          ],
           "next": "REA_RES_SLOTS"
         },
         {
           "key": "2",
           "label": "Manana",
-          "hooks": [{"hook": "dates_tomorrow", "save_as": "agenda.date"}],
+          "hooks": [
+            {
+              "hook": "dates_tomorrow",
+              "save_as": "agenda.date"
+            }
+          ],
           "next": "REA_RES_SLOTS"
         },
         {
@@ -437,7 +695,11 @@
           "label": "Otra fecha (DD-MM-AAAA)",
           "next": "REA_RES_FECHA_INPUT"
         },
-        {"key": "9", "label": "Volver", "next": "REA_RESUMEN"}
+        {
+          "key": "9",
+          "label": "Volver",
+          "next": "REA_RESUMEN"
+        }
       ]
     },
     {
@@ -455,11 +717,16 @@
       "hooks": [
         {
           "hook": "appointments.list_slots",
-          "args": ["{agenda.site}", "{agenda.date}"]
+          "args": [
+            "{agenda.site}",
+            "{agenda.date}"
+          ]
         }
       ],
       "dynamic_options_from": "agenda.slots",
-      "on_select": {"save_as": "agenda.selected_slot"},
+      "on_select": {
+        "save_as": "agenda.selected_slot"
+      },
       "on_select_next": "REA_RES_CONFIRM",
       "fallback": {
         "message": "No tengo disponibilidad en esa fecha. Puedes intentar con otra fecha o escribir 9 para volver."
@@ -470,7 +737,12 @@
       "type": "choice",
       "text": "Confirmas reagendar tu cita a {agenda.display} en {agenda.site_label}?",
       "on_enter_hooks": [
-        {"hook": "agenda.store_slot", "args": ["{agenda.selected_slot}"]}
+        {
+          "hook": "agenda.store_slot",
+          "args": [
+            "{agenda.selected_slot}"
+          ]
+        }
       ],
       "options": [
         {
@@ -479,13 +751,24 @@
           "hooks": [
             {
               "hook": "appointments.reschedule",
-              "args": ["{appointments.target.id}", "{agenda.selected_slot}"]
+              "args": [
+                "{appointments.target.id}",
+                "{agenda.selected_slot}"
+              ]
             }
           ],
           "next": "REA_RES_DONE"
         },
-        {"key": "2", "label": "Elegir otra hora", "next": "REA_RES_SLOTS"},
-        {"key": "9", "label": "Volver", "next": "REA_RESUMEN"}
+        {
+          "key": "2",
+          "label": "Elegir otra hora",
+          "next": "REA_RES_SLOTS"
+        },
+        {
+          "key": "9",
+          "label": "Volver",
+          "next": "REA_RESUMEN"
+        }
       ]
     },
     {
@@ -510,11 +793,20 @@
           "key": "1",
           "label": "Cancelar",
           "hooks": [
-            {"hook": "appointments.cancel", "args": ["{appointments.target.id}"]}
+            {
+              "hook": "appointments.cancel",
+              "args": [
+                "{appointments.target.id}"
+              ]
+            }
           ],
           "next": "REA_CANCEL_DONE"
         },
-        {"key": "2", "label": "No, conservar", "next": "REA_RESUMEN"}
+        {
+          "key": "2",
+          "label": "No, conservar",
+          "next": "REA_RESUMEN"
+        }
       ]
     },
     {
@@ -522,8 +814,16 @@
       "type": "choice",
       "text": "Cita cancelada. ?Deseas agendar otra fecha?",
       "options": [
-        {"key": "1", "label": "Si, agendar", "next": "AGENDA_SEDE"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Si, agendar",
+          "next": "AGENDA_SEDE"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -531,9 +831,21 @@
       "type": "choice",
       "text": "El Portal del Paciente estara disponible pronto. Mientras tanto puedo ayudarte a agendar, reagendar o cancelar por este canal.",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "5", "label": "Reagendar o cancelar", "next": "REA_DNI"},
-        {"key": "9", "label": "Inicio", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "5",
+          "label": "Reagendar o cancelar",
+          "next": "REA_DNI"
+        },
+        {
+          "key": "9",
+          "label": "Inicio",
+          "next": "HOME"
+        }
       ]
     },
     {
@@ -541,8 +853,16 @@
       "type": "choice",
       "text": "Puedes escribir 0 en cualquier momento para que te conecte con un asesor humano. Tambien puedo ayudarte a agendar una cita con el Dr. Guzman.",
       "options": [
-        {"key": "1", "label": "Agendar cita", "next": "AGENDA_DNI"},
-        {"key": "2", "label": "Ver opciones", "next": "HOME"}
+        {
+          "key": "1",
+          "label": "Agendar cita",
+          "next": "AGENDA_DNI"
+        },
+        {
+          "key": "2",
+          "label": "Ver opciones",
+          "next": "HOME"
+        }
       ]
     }
   ]
